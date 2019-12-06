@@ -46,7 +46,7 @@ fn main() -> amethyst::Result<()> {
 
     let assets_dir = app_root.join("assets");
     let mut world = World::new();
-    let mut game = Application::new(assets_dir, Pong, game_data)?;
+    let mut game = Application::new(assets_dir, Pong::default(), game_data)?;
     game.run();
 
     std::thread::sleep(std::time::Duration::from_millis(20));
