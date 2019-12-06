@@ -36,7 +36,13 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
-        .with(systems::PaddleSystem, "paddle_system", &["input_system"]);
+        .with(systems::PaddleSystem, "paddle_system", &["input_system"])
+        .with(systems::MoveBallsSystem, "move_ball_system", &[])
+        .with(
+            systems::BounceSystem,
+            "bounce_system",
+            &["paddle_system", "move_ball_system"],
+        );
 
     let assets_dir = app_root.join("assets");
     let mut world = World::new();
