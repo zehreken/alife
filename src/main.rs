@@ -23,6 +23,8 @@ use amethyst::{
 mod alife;
 use crate::alife::Alife;
 
+type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
+
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
@@ -31,12 +33,13 @@ fn main() -> amethyst::Result<()> {
 
     let game_data = GameDataBuilder::default()
         .with_bundle(WindowBundle::from_config_path(display_config_path))?
+        .with(PrefabLoaderSystem::<MyPrefabData>::default(), "", &[])
         .with_bundle(TransformBundle::new())?
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             ExampleGraph::default(),
         ));
 
-        let assets_dir = app_root.join("assets");
+    let assets_dir = app_root.join("assets");
     let mut game = Application::new(assets_dir, Alife::default(), game_data)?;
     game.run();
 
@@ -89,7 +92,7 @@ impl GraphCreator<DefaultBackend> for ExampleGraph {
             window_kind,
             1,
             surface_format,
-            Some(ClearValue::Color([0.34, 0.36, 0.52, 1.0].into())),
+            Some(ClearValue::Color([0.0, 0.36, 0.52, 1.0].into())),
         );
 
         let depth = graph_builder.create_image(
