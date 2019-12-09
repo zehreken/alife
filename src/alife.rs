@@ -14,5 +14,10 @@ impl SimpleState for Alife {
             loader.load("prefab/sphere.ron", RonFormat, ())
         });
         data.world.create_entity().with(handle).build();
+
+        let handle = data.world.exec(|loader: PrefabLoader<'_, MyPrefabData>| {
+            loader.load("prefab/camera.ron", RonFormat, ())
+        });
+        data.world.create_entity().with(handle).build();
     }
 }
