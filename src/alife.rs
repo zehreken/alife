@@ -20,4 +20,8 @@ impl SimpleState for Alife {
         });
         data.world.create_entity().with(handle).build();
     }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        Trans::None
+    }
 }
