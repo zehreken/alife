@@ -21,6 +21,7 @@ use amethyst::{
     window::{ScreenDimensions, Window, WindowBundle},
 };
 mod alife;
+mod systems;
 use crate::alife::Alife;
 
 type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
@@ -37,7 +38,9 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(TransformBundle::new())?
         .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
             ExampleGraph::default(),
-        ));
+        ))
+        // .with(systems::RotateCameraSystem, "rotate_camera_system", &[])
+        .with(systems::RotateObjectSystem, "rotate_object_system", &[]);
 
     let assets_dir = app_root.join("assets");
     let mut game = Application::new(assets_dir, Alife::default(), game_data)?;

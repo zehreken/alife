@@ -11,7 +11,7 @@ pub struct Alife {}
 impl SimpleState for Alife {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let handle = data.world.exec(|loader: PrefabLoader<'_, MyPrefabData>| {
-            loader.load("prefab/sphere.ron", RonFormat, ())
+            loader.load("prefab/plane.ron", RonFormat, ())
         });
         data.world.create_entity().with(handle).build();
 
