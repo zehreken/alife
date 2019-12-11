@@ -57,7 +57,7 @@ fn initialize_camera(world: &mut World) {
     let width = 960.0;
     let height = 540.0;
     let mut camera = Camera::standard_3d(width, height);
-    camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
+    // camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
 
     world
         .create_entity()
@@ -143,8 +143,8 @@ fn initialize_shapes(world: &mut World) {
     let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
 
     let mut cone_transform = Transform::default();
-    cone_transform.set_translation_xyz(-2.0, 2.0, 4.0);
-    cone_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    cone_transform.set_translation_xyz(-2.0, 2.0, 0.0);
+    // cone_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
         .create_entity()
@@ -154,8 +154,8 @@ fn initialize_shapes(world: &mut World) {
         .build();
 
     let mut sphere_transform = Transform::default();
-    sphere_transform.set_translation_xyz(-2.0, 2.0, 0.0);
-    sphere_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    sphere_transform.set_translation_xyz(-2.0, 0.0, 0.0);
+    // sphere_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
         .create_entity()
@@ -165,8 +165,8 @@ fn initialize_shapes(world: &mut World) {
         .build();
 
     let mut cube_transform = Transform::default();
-    cube_transform.set_translation_xyz(2.0, 2.0, 4.0);
-    cube_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    cube_transform.set_translation_xyz(2.0, 0.0, 0.0);
+    // cube_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
         .create_entity()
@@ -176,8 +176,8 @@ fn initialize_shapes(world: &mut World) {
         .build();
 
     let mut cylinder_transform = Transform::default();
-    cylinder_transform.set_translation_xyz(2.0, 2.0, 0.0);
-    cylinder_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    cylinder_transform.set_translation_xyz(0.0, 2.0, 0.0);
+    // cylinder_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
         .create_entity()
@@ -191,7 +191,7 @@ fn initialize_shapes(world: &mut World) {
     let mut plane_transform = Transform::default();
     plane_transform.set_translation_xyz(0.0, 0.0, 0.0);
     plane_transform.set_scale(Vector3::new(10.0, 10.0, 10.0));
-    plane_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    // plane_transform.set_rotation_x_axis(-std::f32::consts::PI / 2.0);
 
     world
         .create_entity()
