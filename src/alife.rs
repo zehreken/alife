@@ -5,7 +5,7 @@ use amethyst::prelude::World;
 use amethyst::prelude::*;
 use amethyst::renderer::plugins::{RenderPbr3D, RenderToWindow};
 use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
-use amethyst::renderer::Camera;
+use amethyst::renderer::camera::{Camera, Projection};
 use amethyst::utils::{application_root_dir, scene::BasicScenePrefab};
 // use amethyst::window::DisplayConfig;
 // use amethyst::Application;
@@ -25,8 +25,6 @@ use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
 use amethyst::renderer::shape::Shape;
 use amethyst::renderer::Mesh;
 use amethyst::renderer::Texture;
-
-type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
 
 #[derive(Default)]
 pub struct Alife {}
@@ -54,11 +52,16 @@ impl SimpleState for Alife {
 
 fn initialize_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(0.0, 0.0, 10.0);
+    transform.set_translation_xyz(0.0, 3.0, 10.0);
+
+    let width = 960.0;
+    let height = 540.0;
+    let mut camera = Camera::standard_3d(width, height);
+    camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
 
     world
         .create_entity()
-        .with(Camera::standard_3d(960.0, 540.0))
+        .with(camera)
         .with(transform)
         .build();
 }
