@@ -1,184 +1,207 @@
-use amethyst::{
-    assets::{PrefabLoader, PrefabLoaderSystem, RonFormat},
-    core::transform::TransformBundle,
-    ecs::prelude::{ReadExpect, Resources, SystemData},
-    prelude::*,
-    renderer::{
-        pass::DrawShadedDesc,
-        rendy::{
-            factory::Factory,
-            graph::{
-                render::{RenderGroupDesc, SubpassBuilder},
-                GraphBuilder,
-            },
-            hal::{format::Format, image},
-            mesh::{Normal, Position, TexCoord},
-        },
-        types::DefaultBackend,
-        GraphCreator, RenderingSystem,
-    },
-    utils::{application_root_dir, scene::BasicScenePrefab},
-    window::{ScreenDimensions, Window, WindowBundle},
+use amethyst::utils::application_root_dir;
+use amethyst::SimpleState;
+use amethyst::GameDataBuilder;
+use amethyst::Application;
+use amethyst::renderer::{
+    plugins::{RenderPbr3D, RenderToWindow},
+    types::DefaultBackend,
+    RenderingBundle,
 };
-mod alife;
-mod systems;
-use crate::alife::Alife;
+use amethyst::window::DisplayConfig;
+use amethyst::StateData;
+use amethyst::GameData;
+use amethyst::prelude::World;
+use amethyst::prelude::Builder;
+use amethyst::renderer::Camera;
+use amethyst::core::{Transform, TransformBundle};
 
-type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
+use amethyst::assets::AssetLoaderSystemData;
+use amethyst::renderer::Mesh;
+use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
+use amethyst::renderer::shape::Shape;
+use amethyst::renderer::Texture;
+use amethyst::renderer::palette::{LinSrgba, rgb::Rgb};
+use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
+use amethyst::renderer::mtl::{Material, MaterialDefaults};
+use amethyst::renderer::light::{Light, PointLight};
+use amethyst::core::timing::Time;
+use amethyst::prelude::*;
+
+struct GameState;
+impl SimpleState for GameState {
+    fn on_start(&mut self, state_data: StateData<'_, GameData<'_, '_>>) {
+        initialize_camera(state_data.world);
+        initialize_shapes(state_data.world);
+        initialize_light(state_data.world, -2.0, 2.0, 20.0);
+    }
+}
 
 fn main() -> amethyst::Result<()> {
+    // Set up the Amethyst logger
     amethyst::start_logger(Default::default());
 
+    // Set up the assets directory (PathBuf)
     let app_root = application_root_dir()?;
-    let display_config_path = app_root.join("config").join("display.ron");
-
-    let game_data = GameDataBuilder::default()
-        .with_bundle(WindowBundle::from_config_path(display_config_path))?
-        .with(PrefabLoaderSystem::<MyPrefabData>::default(), "", &[])
-        .with_bundle(TransformBundle::new())?
-        .with_thread_local(RenderingSystem::<DefaultBackend, _>::new(
-            ExampleGraph::default(),
-        ))
-        // .with(systems::RotateCameraSystem, "rotate_camera_system", &[])
-        .with(systems::RotateObjectSystem, "rotate_object_system", &[]);
-
     let assets_dir = app_root.join("assets");
-    let mut game = Application::new(assets_dir, Alife::default(), game_data)?;
-    game.run();
 
-    Ok(())
-}
+    // Set up the display configuration
+    let display_config = DisplayConfig {
+        title: "Amethyst".to_string(),
+        dimensions: Some((960, 540)),
+        ..Default::default()
+    };
 
-#[derive(Default)]
-struct ExampleGraph {
-    dimensions: Option<ScreenDimensions>,
-    surface_format: Option<Format>,
-    dirty: bool,
-}
-
-impl GraphCreator<DefaultBackend> for ExampleGraph {
-    fn rebuild(&mut self, res: &Resources) -> bool {
-        // Rebuild when dimensions change, but wait until at least two frames have the same.
-        let new_dimensions = res.try_fetch::<ScreenDimensions>();
-        use std::ops::Deref;
-        if self.dimensions.as_ref() != new_dimensions.as_ref().map(|d| d.deref()) {
-            self.dirty = true;
-            self.dimensions = new_dimensions.map(|d| d.clone());
-            return false;
-        }
-        return self.dirty;
-    }
-
-    fn builder(
-        &mut self,
-        factory: &mut Factory<DefaultBackend>,
-        res: &Resources,
-    ) -> GraphBuilder<DefaultBackend, Resources> {
-        use amethyst::renderer::rendy::{
-            graph::present::PresentNode,
-            hal::command::{ClearDepthStencil, ClearValue},
-        };
-
-        self.dirty = false;
-        let window = <ReadExpect<'_, Window>>::fetch(res);
-        let surface = factory.create_surface(&window);
-        // cache surface format to speed things up
-        let surface_format = *self
-            .surface_format
-            .get_or_insert_with(|| factory.get_surface_format(&surface));
-        let dimensions = self.dimensions.as_ref().unwrap();
-        let window_kind =
-            image::Kind::D2(dimensions.width() as u32, dimensions.height() as u32, 1, 1);
-
-        let mut graph_builder = GraphBuilder::new();
-        let color = graph_builder.create_image(
-            window_kind,
-            1,
-            surface_format,
-            Some(ClearValue::Color([0.0, 0.36, 0.52, 1.0].into())),
-        );
-
-        let depth = graph_builder.create_image(
-            window_kind,
-            1,
-            Format::D32Sfloat,
-            Some(ClearValue::DepthStencil(ClearDepthStencil(1.0, 0))),
-        );
-
-        let opaque = graph_builder.add_node(
-            SubpassBuilder::new()
-                .with_group(DrawShadedDesc::new().builder())
-                .with_color(color)
-                .with_depth_stencil(depth)
-                .into_pass(),
-        );
-
-        let _present = graph_builder
-            .add_node(PresentNode::builder(factory, surface, color).with_dependency(opaque));
-
-        graph_builder
-    }
-}
-
-/*
-mod pong;
-mod systems;
-use crate::pong::Pong;
-use amethyst::ui::{RenderUi, UiBundle};
-use amethyst::{
-    core::transform::TransformBundle,
-    input::{InputBundle, StringBindings},
-    prelude::*,
-    renderer::{
-        plugins::{RenderFlat2D, RenderToWindow},
-        types::DefaultBackend,
-        RenderingBundle,
-        RenderingSystem,
-    },
-    utils::application_root_dir,
-    window::WindowBundle,
-};
-fn main_() -> amethyst::Result<()> {
-    // We'll put the rest of the code here.
-    amethyst::start_logger(Default::default());
-
-    let app_root = application_root_dir()?;
-    let display_config_path = app_root.join("config").join("display.ron");
-    let binding_path = app_root.join("config").join("bindings.ron");
-    let input_bundle =
-        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
-
+    // Set up the GameDataBuilder
     let game_data = GameDataBuilder::default()
+        .with_bundle(TransformBundle::new())?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
-                // The RenderToWindow plugin provides all the scaffolding for opening a window and drawing on it
                 .with_plugin(
-                    RenderToWindow::from_config_path(display_config_path)
-                        .with_clear([0.0, 0.0, 0.0, 1.0]),
+                    RenderToWindow::from_config(display_config)
+                        .with_clear([0.55, 0.55, 0.55, 1.0]),
                 )
-                // RenderFlat2D plugin is used to render entities with a `SpriteRender` component.
-                .with_plugin(RenderFlat2D::default())
-                .with_plugin(RenderUi::default()),
-        )?
-        .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)?
-        .with_bundle(UiBundle::<StringBindings>::new())?
-        .with(systems::PaddleSystem, "paddle_system", &["input_system"])
-        .with(systems::MoveBallsSystem, "move_ball_system", &[])
-        .with(
-            systems::BounceSystem,
-            "bounce_system",
-            &["paddle_system", "move_ball_system"],
-        )
-        .with(systems::WinnerSystem, "winner_system", &[]);
+                .with_plugin(RenderPbr3D::default()),
+        )?;
 
-    let assets_dir = app_root.join("assets");
-    let mut world = World::new();
-    let mut game = Application::new(assets_dir, Pong::default(), game_data)?;
+    // Run the game!
+    let mut game = Application::new(assets_dir, GameState, game_data)?;
     game.run();
-
-    std::thread::sleep(std::time::Duration::from_millis(20));
 
     Ok(())
 }
-*/
+
+fn initialize_camera(world: &mut World) {
+    let mut transform = Transform::default();
+    transform.set_translation_xyz(0.0, 0.0, 10.0);
+
+    world.create_entity()
+        .with(Camera::standard_3d(960.0, 540.0))
+        .with(transform)
+        .build();
+}
+
+fn initialize_shapes(world: &mut World) {
+    let mat_defaults = world.read_resource::<MaterialDefaults>().0.clone();
+
+    let cone_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Cone(100)
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let sphere_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Sphere(100, 100)
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let cube_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Cube
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let cylinder_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Cylinder(100, None)
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let albedo = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
+        loader.load_from_data(
+            load_from_linear_rgba(LinSrgba::new(0.0, 0.0, 1.0, 1.0)).into(),
+            (),
+        )
+    });
+
+    let metallic_roughness = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
+        loader.load_from_data(
+            load_from_linear_rgba(LinSrgba::new(0.0, 1.0, 0.1, 0.0)).into(),
+            (),
+        )
+    });
+
+    let mtl = world.exec(|mtl_loader: AssetLoaderSystemData<'_, Material>| {
+            mtl_loader.load_from_data(
+                Material {
+                    albedo: albedo,
+                    metallic_roughness,
+                    ..mat_defaults.clone()
+                },
+                (),
+            )
+        },
+    );
+
+
+    let mut cone_transform = Transform::default();
+    cone_transform.set_translation_xyz(-2.0, -2.0, 0.0);
+    cone_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+
+    world.create_entity()
+        .with(cone_mesh.clone())
+        .with(mtl.clone())
+        .with(cone_transform)
+        .build();
+
+    let mut sphere_transform = Transform::default();
+    sphere_transform.set_translation_xyz(-2.0, 2.0, 0.0);
+    sphere_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+
+    world.create_entity()
+        .with(sphere_mesh.clone())
+        .with(mtl.clone())
+        .with(sphere_transform)
+        .build();
+
+    let mut cube_transform = Transform::default();
+    cube_transform.set_translation_xyz(2.0, -2.0, 0.0);
+    cube_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+
+    world.create_entity()
+        .with(cube_mesh.clone())
+        .with(mtl.clone())
+        .with(cube_transform)
+        .build();
+
+    let mut cylinder_transform = Transform::default();
+    cylinder_transform.set_translation_xyz(2.0, 2.0, 0.0);
+    cylinder_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+
+    world.create_entity()
+        .with(cylinder_mesh.clone())
+        .with(mtl.clone())
+        .with(cylinder_transform)
+        .build();
+}
+
+fn initialize_light(world: &mut World, x: f32, y: f32, z: f32) {
+    let light1: Light = PointLight {
+        intensity: 50.0,
+        color: Rgb::new(1.0, 1.0, 1.0),
+        radius: 0.1,
+        ..PointLight::default()
+    }
+        .into();
+
+    let mut light1_transform = Transform::default();
+    light1_transform.set_translation_xyz(x, y, z);
+
+    world
+        .create_entity()
+        .with(light1)
+        .with(light1_transform)
+        .build();
+}

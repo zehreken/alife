@@ -3,12 +3,14 @@ use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Join, Read, ReadStorage, System, WriteStorage},
 };
+use amethyst::renderer::shape::Shape;
+use amethyst::renderer::Mesh;
 
 pub struct RotateObjectSystem;
 
 impl<'s> System<'s> for RotateObjectSystem {
     type SystemData = (
-        ReadStorage<'s, Cone>,
+        ReadStorage<'s, Mesh>,
         WriteStorage<'s, Transform>,
         Read<'s, Time>,
     );
