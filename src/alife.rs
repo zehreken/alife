@@ -28,6 +28,7 @@ use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
 use amethyst::renderer::shape::Shape;
 use amethyst::renderer::Mesh;
 use amethyst::renderer::Texture;
+use amethyst::core::math::Vector3;
 
 type MyPrefabData = BasicScenePrefab<(Vec<Position>, Vec<Normal>, Vec<TexCoord>)>;
 
@@ -105,6 +106,15 @@ fn initialize_shapes(world: &mut World) {
         )
     });
 
+    let plane_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Plane(Some((1, 1)))
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
     let albedo = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
         loader.load_from_data(
             load_from_linear_rgba(LinSrgba::new(0.0, 0.0, 1.0, 1.0)).into(),
@@ -172,6 +182,18 @@ fn initialize_shapes(world: &mut World) {
         .with(cylinder_mesh.clone())
         .with(mtl.clone())
         .with(cylinder_transform)
+        .build();
+
+    let mut plane_transform = Transform::default();
+    plane_transform.set_translation_xyz(0.0, 0.0, 0.0);
+    plane_transform.set_scale(Vector3::new(10.0, 10.0, 10.0));
+    plane_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+
+    world
+        .create_entity()
+        .with(plane_mesh.clone())
+        .with(mtl.clone())
+        .with(plane_transform)
         .build();
 }
 
