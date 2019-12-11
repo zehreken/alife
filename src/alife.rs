@@ -1,4 +1,4 @@
-use amethyst::assets::{PrefabLoader, PrefabLoaderSystem, RonFormat};
+use amethyst::assets::{PrefabLoader, Handle, PrefabLoaderSystem, RonFormat};
 use amethyst::core::{Transform, TransformBundle};
 use amethyst::prelude::Builder;
 use amethyst::prelude::World;
@@ -7,20 +7,20 @@ use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
 use amethyst::renderer::Camera;
 use amethyst::renderer::{
     plugins::{RenderPbr3D, RenderToWindow},
-    types::DefaultBackend,
-    RenderingBundle,
+    // types::DefaultBackend,
+    // RenderingBundle,
 };
 use amethyst::utils::{application_root_dir, scene::BasicScenePrefab};
-use amethyst::window::DisplayConfig;
-use amethyst::Application;
+// use amethyst::window::DisplayConfig;
+// use amethyst::Application;
 use amethyst::GameData;
-use amethyst::GameDataBuilder;
+// use amethyst::GameDataBuilder;
 use amethyst::SimpleState;
 use amethyst::StateData;
 
 use amethyst::assets::AssetLoaderSystemData;
-use amethyst::core::timing::Time;
-use amethyst::prelude::*;
+// use amethyst::core::timing::Time;
+// use amethyst::prelude::*;
 use amethyst::renderer::light::{Light, PointLight};
 use amethyst::renderer::mtl::{Material, MaterialDefaults};
 use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
@@ -67,9 +67,38 @@ fn initialize_camera(world: &mut World) {
         .build();
 }
 
-fn initialize_shapes(world: &mut World) {
+fn get_material(world: &mut World) -> Handle<Material> {
     let mat_defaults = world.read_resource::<MaterialDefaults>().0.clone();
 
+    let albedo = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
+        loader.load_from_data(
+            load_from_linear_rgba(LinSrgba::new(0.0, 0.0, 1.0, 1.0)).into(),
+            (),
+        )
+    });
+
+    let metallic_roughness = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
+        loader.load_from_data(
+            load_from_linear_rgba(LinSrgba::new(0.0, 1.0, 0.1, 0.0)).into(),
+            (),
+        )
+    });
+
+    let mtl = world.exec(|mtl_loader: AssetLoaderSystemData<'_, Material>| {
+        mtl_loader.load_from_data(
+            Material {
+                albedo: albedo,
+                metallic_roughness,
+                ..mat_defaults.clone()
+            },
+            (),
+        )
+    });
+
+    mtl
+}
+
+fn initialize_shapes(world: &mut World) {
     let cone_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
         loader.load_from_data(
             Shape::Cone(100)
@@ -115,30 +144,7 @@ fn initialize_shapes(world: &mut World) {
         )
     });
 
-    let albedo = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
-        loader.load_from_data(
-            load_from_linear_rgba(LinSrgba::new(0.0, 0.0, 1.0, 1.0)).into(),
-            (),
-        )
-    });
-
-    let metallic_roughness = world.exec(|loader: AssetLoaderSystemData<'_, Texture>| {
-        loader.load_from_data(
-            load_from_linear_rgba(LinSrgba::new(0.0, 1.0, 0.1, 0.0)).into(),
-            (),
-        )
-    });
-
-    let mtl = world.exec(|mtl_loader: AssetLoaderSystemData<'_, Material>| {
-        mtl_loader.load_from_data(
-            Material {
-                albedo: albedo,
-                metallic_roughness,
-                ..mat_defaults.clone()
-            },
-            (),
-        )
-    });
+    let mtl = get_material(world);
 
     let mut cone_transform = Transform::default();
     cone_transform.set_translation_xyz(-2.0, -2.0, 0.0);
