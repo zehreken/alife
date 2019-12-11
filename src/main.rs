@@ -52,10 +52,11 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
-                    RenderToWindow::from_config(display_config).with_clear([0.0, 0.55, 0.55, 1.0]),
+                    RenderToWindow::from_config(display_config).with_clear([0.0, 0.25, 0.55, 1.0]),
                 )
                 .with_plugin(RenderPbr3D::default()),
-        )?;
+        )?
+        .with(systems::RotateCameraSystem, "rotate_camera_system", &[]);
 
     // Run the game!
     let mut game = Application::new(assets_dir, Alife::default(), game_data)?;

@@ -2,7 +2,7 @@ use amethyst::{
     core::timing::Time,
     core::transform::Transform,
     ecs::prelude::{Join, Read, ReadStorage, System, WriteStorage},
-    renderer::camera::{Camera, Projection},
+    renderer::camera::Camera,
 };
 
 pub struct RotateCameraSystem;
