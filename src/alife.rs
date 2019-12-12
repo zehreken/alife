@@ -3,9 +3,9 @@ use amethyst::core::{Transform, TransformBundle};
 use amethyst::prelude::Builder;
 use amethyst::prelude::World;
 use amethyst::prelude::*;
+use amethyst::renderer::camera::{Camera, Projection};
 use amethyst::renderer::plugins::{RenderPbr3D, RenderToWindow};
 use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
-use amethyst::renderer::camera::{Camera, Projection};
 use amethyst::utils::{application_root_dir, scene::BasicScenePrefab};
 // use amethyst::window::DisplayConfig;
 // use amethyst::Application;
@@ -59,11 +59,7 @@ fn initialize_camera(world: &mut World) {
     let mut camera = Camera::standard_3d(width, height);
     // camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
 
-    world
-        .create_entity()
-        .with(camera)
-        .with(transform)
-        .build();
+    world.create_entity().with(camera).with(transform).build();
 }
 
 fn create_material(world: &mut World, albedo: LinSrgba) -> Handle<Material> {
@@ -94,46 +90,10 @@ fn create_material(world: &mut World, albedo: LinSrgba) -> Handle<Material> {
     mtl
 }
 
-fn initialize_shapes(world: &mut World) {
+fn create_cone(world: &mut World) {
     let cone_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
         loader.load_from_data(
             Shape::Cone(100)
-                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
-                .into(),
-            (),
-        )
-    });
-
-    let sphere_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
-        loader.load_from_data(
-            Shape::Sphere(100, 100)
-                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
-                .into(),
-            (),
-        )
-    });
-
-    let cube_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
-        loader.load_from_data(
-            Shape::Cube
-                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
-                .into(),
-            (),
-        )
-    });
-
-    let cylinder_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
-        loader.load_from_data(
-            Shape::Cylinder(100, None)
-                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
-                .into(),
-            (),
-        )
-    });
-
-    let plane_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
-        loader.load_from_data(
-            Shape::Plane(Some((1, 1)))
                 .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
                 .into(),
             (),
@@ -152,10 +112,23 @@ fn initialize_shapes(world: &mut World) {
         .with(mtl.clone())
         .with(cone_transform)
         .build();
+}
+
+fn create_sphere(world: &mut World) {
+    let sphere_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Sphere(100, 100)
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
 
     let mut sphere_transform = Transform::default();
     sphere_transform.set_translation_xyz(-2.0, 0.0, 0.0);
-    // sphere_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
+    // cone_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
         .create_entity()
@@ -163,6 +136,19 @@ fn initialize_shapes(world: &mut World) {
         .with(mtl.clone())
         .with(sphere_transform)
         .build();
+}
+
+fn create_cube(world: &mut World) {
+    let cube_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Cube
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
 
     let mut cube_transform = Transform::default();
     cube_transform.set_translation_xyz(2.0, 0.0, 0.0);
@@ -174,6 +160,19 @@ fn initialize_shapes(world: &mut World) {
         .with(mtl.clone())
         .with(cube_transform)
         .build();
+}
+
+fn create_cylinder(world: &mut World) {
+    let cylinder_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Cylinder(100, None)
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
+
+    let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
 
     let mut cylinder_transform = Transform::default();
     cylinder_transform.set_translation_xyz(0.0, 2.0, 0.0);
@@ -185,6 +184,17 @@ fn initialize_shapes(world: &mut World) {
         .with(mtl.clone())
         .with(cylinder_transform)
         .build();
+}
+
+fn create_plane(world: &mut World) {
+    let plane_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
+        loader.load_from_data(
+            Shape::Plane(Some((1, 1)))
+                .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
+                .into(),
+            (),
+        )
+    });
 
     let mtl = create_material(world, LinSrgba::new(0.0, 0.1, 0.0, 1.0));
 
@@ -199,6 +209,14 @@ fn initialize_shapes(world: &mut World) {
         .with(mtl.clone())
         .with(plane_transform)
         .build();
+}
+
+fn initialize_shapes(world: &mut World) {
+    create_cone(world);
+    create_sphere(world);
+    create_cube(world);
+    create_cylinder(world);
+    create_plane(world);
 }
 
 fn initialize_light(world: &mut World, x: f32, y: f32, z: f32) {
