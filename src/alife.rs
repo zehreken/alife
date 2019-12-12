@@ -70,7 +70,7 @@ fn initialize_shapes(world: &mut World) {
     create_plane(world);
     for i in 0..10 {
         for j in 0..10 {
-            create_cube(world, Vector3::new(i as f32 * 2.0 - 9.0, j as f32 * 2.0 - 9.0, 0.0));
+            create_sphere(world, Vector3::new(i as f32 * 2.0 - 9.0, j as f32 * 2.0 - 9.0, 0.0));
         }
     }
 }
@@ -127,20 +127,21 @@ fn create_cone(world: &mut World) {
         .build();
 }
 
-fn create_sphere(world: &mut World) {
+fn create_sphere(world: &mut World, position: Vector3<f32>) {
     let sphere_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
         loader.load_from_data(
-            Shape::Sphere(100, 100)
+            Shape::Sphere(10, 10)
                 .generate::<(Vec<Position>, Vec<Normal>, Vec<Tangent>, Vec<TexCoord>)>(None)
                 .into(),
             (),
         )
     });
 
-    let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
+    let mtl = create_material(world, LinSrgba::new(0.0, 0.01, 0.0, 1.0));
 
     let mut sphere_transform = Transform::default();
-    sphere_transform.set_translation_xyz(-2.0, 0.0, 0.0);
+    sphere_transform.set_translation_xyz(position.x, position.y, position.z);
+    sphere_transform.set_scale(Vector3::new(0.5, 0.5, 0.5));
     // cone_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
