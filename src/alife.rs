@@ -52,7 +52,7 @@ impl SimpleState for Alife {
 
 fn initialize_camera(world: &mut World) {
     let mut transform = Transform::default();
-    transform.set_translation_xyz(0.0, 3.0, 10.0);
+    transform.set_translation_xyz(0.0, 3.0, 20.0);
 
     let width = 960.0;
     let height = 540.0;
@@ -60,6 +60,19 @@ fn initialize_camera(world: &mut World) {
     // camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
 
     world.create_entity().with(camera).with(transform).build();
+}
+
+fn initialize_shapes(world: &mut World) {
+    // create_cone(world);
+    // create_sphere(world);
+    // create_cube(world);
+    // create_cylinder(world);
+    create_plane(world);
+    for i in 0..10 {
+        for j in 0..10 {
+            create_cube(world, Vector3::new(i as f32 * 2.0 - 9.0, j as f32 * 2.0 - 9.0, 0.0));
+        }
+    }
 }
 
 fn create_material(world: &mut World, albedo: LinSrgba) -> Handle<Material> {
@@ -138,7 +151,7 @@ fn create_sphere(world: &mut World) {
         .build();
 }
 
-fn create_cube(world: &mut World) {
+fn create_cube(world: &mut World, position: Vector3<f32>) {
     let cube_mesh = world.exec(|loader: AssetLoaderSystemData<'_, Mesh>| {
         loader.load_from_data(
             Shape::Cube
@@ -151,7 +164,8 @@ fn create_cube(world: &mut World) {
     let mtl = create_material(world, LinSrgba::new(0.1, 0.0, 0.0, 1.0));
 
     let mut cube_transform = Transform::default();
-    cube_transform.set_translation_xyz(2.0, 0.0, 0.0);
+    cube_transform.set_translation_xyz(position.x, position.y, position.z);
+    cube_transform.set_scale(Vector3::new(0.5, 0.5, 0.5));
     // cube_transform.set_rotation_x_axis(-std::f32::consts::PI / 3.0);
 
     world
@@ -209,14 +223,6 @@ fn create_plane(world: &mut World) {
         .with(mtl.clone())
         .with(plane_transform)
         .build();
-}
-
-fn initialize_shapes(world: &mut World) {
-    create_cone(world);
-    create_sphere(world);
-    create_cube(world);
-    create_cylinder(world);
-    create_plane(world);
 }
 
 fn initialize_light(world: &mut World, x: f32, y: f32, z: f32) {
