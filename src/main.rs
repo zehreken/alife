@@ -56,7 +56,8 @@ fn main() -> amethyst::Result<()> {
                 )
                 .with_plugin(RenderPbr3D::default()),
         )?
-        .with(systems::RotateCameraSystem, "rotate_camera_system", &[]);
+        .with(systems::RotateCameraSystem, "rotate_camera_system", &[])
+        .with(systems::PlantSystem, "plant_system", &[]);
 
     // Run the game!
     let mut game = Application::new(assets_dir, Alife::default(), game_data)?;

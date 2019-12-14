@@ -18,6 +18,7 @@ use amethyst::assets::AssetLoaderSystemData;
 // use amethyst::core::timing::Time;
 // use amethyst::prelude::*;
 use amethyst::core::math::Vector3;
+use amethyst::ecs::prelude::{Component, DenseVecStorage};
 use amethyst::renderer::light::{Light, PointLight};
 use amethyst::renderer::mtl::{Material, MaterialDefaults};
 use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
@@ -25,6 +26,8 @@ use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
 use amethyst::renderer::shape::Shape;
 use amethyst::renderer::Mesh;
 use amethyst::renderer::Texture;
+
+use crate::systems::plant_system::Plant;
 
 #[derive(Default)]
 pub struct Alife {}
@@ -70,7 +73,10 @@ fn initialize_shapes(world: &mut World) {
     create_plane(world);
     for i in 0..10 {
         for j in 0..10 {
-            create_sphere(world, Vector3::new(i as f32 * 2.0 - 9.0, j as f32 * 2.0 - 9.0, 0.0));
+            create_sphere(
+                world,
+                Vector3::new(i as f32 * 2.0 - 9.0, j as f32 * 2.0 - 9.0, 0.0),
+            );
         }
     }
 }
@@ -149,6 +155,7 @@ fn create_sphere(world: &mut World, position: Vector3<f32>) {
         .with(sphere_mesh.clone())
         .with(mtl.clone())
         .with(sphere_transform)
+        .with(Plant {})
         .build();
 }
 
