@@ -1,31 +1,23 @@
-use amethyst::assets::{Handle, PrefabLoader, PrefabLoaderSystem, RonFormat};
-use amethyst::core::{Transform, TransformBundle};
+use amethyst::assets::AssetLoaderSystemData;
+use amethyst::assets::{Handle, Loader};
+use amethyst::core::math::Vector3;
+use amethyst::core::Transform;
 use amethyst::prelude::Builder;
 use amethyst::prelude::World;
 use amethyst::prelude::*;
-use amethyst::renderer::camera::{Camera, Projection};
-use amethyst::renderer::plugins::{RenderPbr3D, RenderToWindow};
-use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
-use amethyst::utils::{application_root_dir, scene::BasicScenePrefab};
-// use amethyst::window::DisplayConfig;
-// use amethyst::Application;
-use amethyst::GameData;
-// use amethyst::GameDataBuilder;
-use amethyst::SimpleState;
-use amethyst::StateData;
-
-use amethyst::assets::AssetLoaderSystemData;
-// use amethyst::core::timing::Time;
-// use amethyst::prelude::*;
-use amethyst::core::math::Vector3;
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
+use amethyst::renderer::camera::Camera;
 use amethyst::renderer::light::{Light, PointLight};
 use amethyst::renderer::mtl::{Material, MaterialDefaults};
 use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
+use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
 use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
 use amethyst::renderer::shape::Shape;
 use amethyst::renderer::Mesh;
 use amethyst::renderer::Texture;
+use amethyst::ui::{Anchor, TtfFormat, UiText, UiTransform};
+use amethyst::GameData;
+use amethyst::SimpleState;
+use amethyst::StateData;
 
 use crate::systems::plant_system::Plant;
 
@@ -46,6 +38,7 @@ impl SimpleState for Alife {
         initialize_camera(data.world);
         initialize_shapes(data.world);
         initialize_light(data.world, -2.0, 2.0, 20.0);
+        initialize_ui(data.world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -59,7 +52,7 @@ fn initialize_camera(world: &mut World) {
 
     let width = 960.0;
     let height = 540.0;
-    let mut camera = Camera::standard_3d(width, height);
+    let camera = Camera::standard_3d(width, height);
     // camera.set_projection(Projection::orthographic(-9.6, 9.6, -5.4, 5.4, 0.0, 20.0));
 
     world.create_entity().with(camera).with(transform).build();
@@ -249,5 +242,36 @@ fn initialize_light(world: &mut World, x: f32, y: f32, z: f32) {
         .create_entity()
         .with(light1)
         .with(light1_transform)
+        .build();
+}
+
+fn initialize_ui(world: &mut World) {
+    let font = world.read_resource::<Loader>().load(
+        "font/square.ttf",
+        TtfFormat,
+        (),
+        &world.read_resource(),
+    );
+
+    let text_transform = UiTransform::new(
+        "info".to_string(),
+        Anchor::TopMiddle,
+        Anchor::TopMiddle,
+        -50.0,
+        -50.0,
+        1.0,
+        200.0,
+        50.0,
+    );
+
+    let text_entity = world
+        .create_entity()
+        .with(text_transform)
+        .with(UiText::new(
+            font.clone(),
+            "0".to_string(),
+            [1.0, 1.0, 1.0, 1.0],
+            50.0,
+        ))
         .build();
 }

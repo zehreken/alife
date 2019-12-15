@@ -1,10 +1,10 @@
-use amethyst::renderer::shape::Shape;
-use amethyst::renderer::Mesh;
-use amethyst::{
-    core::timing::Time,
-    core::transform::Transform,
-    ecs::prelude::{Join, Read, ReadStorage, System, WriteStorage},
-};
+// use amethyst::renderer::shape::Shape;
+// use amethyst::renderer::Mesh;
+// use amethyst::{
+//     core::timing::Time,
+//     core::transform::Transform,
+//     ecs::prelude::{Join, Read, ReadStorage, System, WriteStorage},
+// };
 
 pub struct RotateObjectSystem;
 

@@ -1,31 +1,33 @@
-use amethyst::core::{Transform, TransformBundle};
-use amethyst::prelude::Builder;
-use amethyst::prelude::World;
-use amethyst::renderer::Camera;
+use amethyst::core::TransformBundle;
+// use amethyst::prelude::Builder;
+// use amethyst::prelude::World;
+// use amethyst::renderer::Camera;
 use amethyst::renderer::{
     plugins::{RenderPbr3D, RenderToWindow},
     types::DefaultBackend,
     RenderingBundle,
 };
+use amethyst::input::StringBindings;
 use amethyst::utils::application_root_dir;
 use amethyst::window::DisplayConfig;
 use amethyst::Application;
-use amethyst::GameData;
+// use amethyst::GameData;
 use amethyst::GameDataBuilder;
-use amethyst::SimpleState;
-use amethyst::StateData;
+// use amethyst::SimpleState;
+// use amethyst::StateData;
 
-use amethyst::assets::AssetLoaderSystemData;
-use amethyst::core::timing::Time;
-use amethyst::prelude::*;
-use amethyst::renderer::light::{Light, PointLight};
-use amethyst::renderer::mtl::{Material, MaterialDefaults};
-use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
-use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
-use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
-use amethyst::renderer::shape::Shape;
-use amethyst::renderer::Mesh;
-use amethyst::renderer::Texture;
+// use amethyst::assets::AssetLoaderSystemData;
+// use amethyst::core::timing::Time;
+// use amethyst::renderer::light::{Light, PointLight};
+// use amethyst::renderer::mtl::{Material, MaterialDefaults};
+// use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
+// use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
+// use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
+// use amethyst::renderer::shape::Shape;
+// use amethyst::renderer::Mesh;
+// use amethyst::renderer::Texture;
+
+use amethyst::ui::{RenderUi, UiBundle};
 
 mod alife;
 mod systems;
@@ -54,8 +56,10 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(
                     RenderToWindow::from_config(display_config).with_clear([0.0, 0.25, 0.55, 1.0]),
                 )
-                .with_plugin(RenderPbr3D::default()),
+                .with_plugin(RenderPbr3D::default())
+                .with_plugin(RenderUi::default()),
         )?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with(systems::RotateCameraSystem, "rotate_camera_system", &[])
         .with(systems::PlantSystem, "plant_system", &[]);
 
