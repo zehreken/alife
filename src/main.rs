@@ -2,12 +2,12 @@ use amethyst::core::TransformBundle;
 // use amethyst::prelude::Builder;
 // use amethyst::prelude::World;
 // use amethyst::renderer::Camera;
+use amethyst::input::StringBindings;
 use amethyst::renderer::{
     plugins::{RenderPbr3D, RenderToWindow},
     types::DefaultBackend,
     RenderingBundle,
 };
-use amethyst::input::StringBindings;
 use amethyst::utils::application_root_dir;
 use amethyst::window::DisplayConfig;
 use amethyst::Application;

@@ -19,7 +19,7 @@ use amethyst::GameData;
 use amethyst::SimpleState;
 use amethyst::StateData;
 
-use crate::systems::plant_system::Plant;
+use crate::systems::plant_system::*;
 
 #[derive(Default)]
 pub struct Alife {}
@@ -35,6 +35,9 @@ impl SimpleState for Alife {
         //     loader.load("prefab/camera.ron", RonFormat, ())
         // });
         // data.world.create_entity().with(handle).build();
+
+        data.world.register::<Living>(); // Necessary to be able to use the component, https://book.amethyst.rs/master/pong-tutorial/pong-tutorial-02.html
+
         initialize_camera(data.world);
         initialize_shapes(data.world);
         initialize_light(data.world, -2.0, 2.0, 20.0);
@@ -149,6 +152,7 @@ fn create_sphere(world: &mut World, position: Vector3<f32>) {
         .with(mtl.clone())
         .with(sphere_transform)
         .with(Plant {})
+        .with(Living { age: 0 })
         .build();
 }
 
@@ -255,13 +259,13 @@ fn initialize_ui(world: &mut World) {
 
     let text_transform = UiTransform::new(
         "info".to_string(),
-        Anchor::TopMiddle,
-        Anchor::TopMiddle,
-        -50.0,
-        -50.0,
+        Anchor::TopLeft,
+        Anchor::TopLeft,
+        0.0,
+        0.0,
         1.0,
         200.0,
-        50.0,
+        200.0,
     );
 
     let text_entity = world
@@ -269,9 +273,9 @@ fn initialize_ui(world: &mut World) {
         .with(text_transform)
         .with(UiText::new(
             font.clone(),
-            "0".to_string(),
+            "info text".to_string(),
             [1.0, 1.0, 1.0, 1.0],
-            50.0,
+            20.0,
         ))
         .build();
 }

@@ -5,6 +5,14 @@ use amethyst::{
     ecs::prelude::{Join, Read, ReadStorage, System, WriteStorage},
 };
 
+pub struct Living {
+    pub age: u32,
+}
+
+impl Component for Living {
+    type Storage = DenseVecStorage<Self>;
+}
+
 pub struct Plant;
 
 impl Component for Plant {
