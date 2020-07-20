@@ -26,8 +26,13 @@ use amethyst::GameDataBuilder;
 // use amethyst::renderer::shape::Shape;
 // use amethyst::renderer::Mesh;
 // use amethyst::renderer::Texture;
+use amethyst::renderer::RenderFlat2D;
 
 use amethyst::ui::{RenderUi, UiBundle};
+
+pub struct Pong;
+
+impl amethyst::prelude::SimpleState for Pong {}
 
 mod alife;
 mod systems;
@@ -42,29 +47,23 @@ fn main() -> amethyst::Result<()> {
     let assets_dir = app_root.join("assets");
 
     // Set up the display configuration
-    let display_config = DisplayConfig {
-        title: "Alife".to_string(),
-        dimensions: Some((960, 540)),
-        ..Default::default()
-    };
-
-    // Set up the GameDataBuilder
+    let display_config_path = app_root.join("config").join("display.ron");
     let game_data = GameDataBuilder::default()
         .with_bundle(TransformBundle::new())?
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
-                    RenderToWindow::from_config(display_config).with_clear([0.0, 0.25, 0.55, 1.0]),
+                    RenderToWindow::from_config_path(display_config_path)?
+                        .with_clear([0.0, 0.25, 0.55, 1.0]),
                 )
-                .with_plugin(RenderPbr3D::default())
-                .with_plugin(RenderUi::default()),
+                .with_plugin(RenderPbr3D::default()), // .with_plugin(RenderUi::default()),
         )?
-        .with_bundle(UiBundle::<StringBindings>::new())?
+        // .with_bundle(UiBundle::<StringBindings>::new())?;
         .with(systems::RotateCameraSystem, "rotate_camera_system", &[])
         .with(systems::PlantSystem, "plant_system", &[]);
 
     // Run the game!
-    let mut game = Application::new(assets_dir, Alife::default(), game_data)?;
+    let mut game = Application::new(assets_dir, Pong, game_data)?;
     game.run();
 
     Ok(())
