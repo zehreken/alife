@@ -250,32 +250,32 @@ fn initialize_light(world: &mut World, x: f32, y: f32, z: f32) {
 }
 
 fn initialize_ui(world: &mut World) {
-    let font = world.read_resource::<Loader>().load(
-        "font/square.ttf",
-        TtfFormat,
-        (),
-        &world.read_resource(),
-    );
+    // let font = world.read_resource::<Loader>().load(
+    //     "font/square.ttf",
+    //     TtfFormat,
+    //     (),
+    //     &world.read_resource(),
+    // );
 
-    let text_transform = UiTransform::new(
-        "info".to_string(),
-        Anchor::TopLeft,
-        Anchor::TopLeft,
-        0.0,
-        0.0,
-        1.0,
-        200.0,
-        200.0,
-    );
+    // let text_transform = UiTransform::new(
+    //     "info".to_string(),
+    //     Anchor::TopLeft,
+    //     Anchor::TopLeft,
+    //     0.0,
+    //     0.0,
+    //     1.0,
+    //     200.0,
+    //     200.0,
+    // );
 
-    let text_entity = world
-        .create_entity()
-        .with(text_transform)
-        .with(UiText::new(
-            font.clone(),
-            "info text".to_string(),
-            [1.0, 1.0, 1.0, 1.0],
-            20.0,
-        ))
-        .build();
+    // let text_entity = world
+    //     .create_entity()
+    //     .with(text_transform)
+    //     .with(UiText::new(
+    //         font.clone(),
+    //         "info text".to_string(),
+    //         [1.0, 1.0, 1.0, 1.0],
+    //         20.0,
+    //     ))
+    //     .build();
 }

@@ -1,38 +1,16 @@
 use amethyst::core::TransformBundle;
-// use amethyst::prelude::Builder;
-// use amethyst::prelude::World;
-// use amethyst::renderer::Camera;
 use amethyst::input::StringBindings;
+use amethyst::renderer::RenderFlat2D;
 use amethyst::renderer::{
     plugins::{RenderPbr3D, RenderToWindow},
     types::DefaultBackend,
     RenderingBundle,
 };
+use amethyst::ui::{RenderUi, UiBundle};
 use amethyst::utils::application_root_dir;
 use amethyst::window::DisplayConfig;
 use amethyst::Application;
-// use amethyst::GameData;
 use amethyst::GameDataBuilder;
-// use amethyst::SimpleState;
-// use amethyst::StateData;
-
-// use amethyst::assets::AssetLoaderSystemData;
-// use amethyst::core::timing::Time;
-// use amethyst::renderer::light::{Light, PointLight};
-// use amethyst::renderer::mtl::{Material, MaterialDefaults};
-// use amethyst::renderer::palette::{rgb::Rgb, LinSrgba};
-// use amethyst::renderer::rendy::mesh::{Normal, Position, Tangent, TexCoord};
-// use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
-// use amethyst::renderer::shape::Shape;
-// use amethyst::renderer::Mesh;
-// use amethyst::renderer::Texture;
-use amethyst::renderer::RenderFlat2D;
-
-use amethyst::ui::{RenderUi, UiBundle};
-
-pub struct Pong;
-
-impl amethyst::prelude::SimpleState for Pong {}
 
 mod alife;
 mod systems;
@@ -63,7 +41,7 @@ fn main() -> amethyst::Result<()> {
         .with(systems::PlantSystem, "plant_system", &[]);
 
     // Run the game!
-    let mut game = Application::new(assets_dir, Pong, game_data)?;
+    let mut game = Application::new(assets_dir, Alife::default(), game_data)?;
     game.run();
 
     Ok(())
