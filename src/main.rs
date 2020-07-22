@@ -1,6 +1,5 @@
 use amethyst::core::TransformBundle;
 use amethyst::input::StringBindings;
-use amethyst::renderer::RenderFlat2D;
 use amethyst::renderer::{
     plugins::{RenderPbr3D, RenderToWindow},
     types::DefaultBackend,
@@ -8,13 +7,12 @@ use amethyst::renderer::{
 };
 use amethyst::ui::{RenderUi, UiBundle};
 use amethyst::utils::application_root_dir;
-use amethyst::window::DisplayConfig;
 use amethyst::Application;
 use amethyst::GameDataBuilder;
 
 mod alife;
 mod systems;
-use crate::alife::Alife;
+use alife::Alife;
 
 fn main() -> amethyst::Result<()> {
     // Set up the Amethyst logger
