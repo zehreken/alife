@@ -1,5 +1,5 @@
 use amethyst::assets::AssetLoaderSystemData;
-use amethyst::assets::{Handle, Loader};
+use amethyst::assets::{AssetStorage, Handle, Loader};
 use amethyst::core::math::Vector3;
 use amethyst::core::Transform;
 use amethyst::prelude::Builder;
@@ -14,7 +14,7 @@ use amethyst::renderer::rendy::texture::palette::load_from_linear_rgba;
 use amethyst::renderer::shape::Shape;
 use amethyst::renderer::Mesh;
 use amethyst::renderer::Texture;
-use amethyst::ui::{Anchor, TtfFormat, UiText, UiTransform};
+use amethyst::ui::{Anchor, FontAsset, TtfFormat, UiText, UiTransform};
 use amethyst::GameData;
 use amethyst::SimpleState;
 use amethyst::StateData;
@@ -254,7 +254,7 @@ fn initialize_ui(world: &mut World) {
     //     "font/square.ttf",
     //     TtfFormat,
     //     (),
-    //     &world.read_resource(),
+    //     &world.read_resource::<AssetStorage<FontAsset>>(),
     // );
 
     // let text_transform = UiTransform::new(
